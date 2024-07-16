@@ -10,7 +10,7 @@ pipeline {
 
         stage('playbook dry run') {
             steps {
-                ansiblePlaybook checkMode: "${params.MODE}" , credentialsId: 'sshansible', inventory: "/home/adminuser/pr_ansible/${params.INVENTORY}" , playbook: "/home/adminuser/pr_ansible/${params.PLAYBOOK}.yml"
+                ansiblePlaybook checkMode: "${params.MODE}" , credentialsId: 'sshansible', inventory: "${params.INVENTORY}" , playbook: "${params.PLAYBOOK}.yml"
                 input message: 'please review dry run.. APPROVE?', ok: 'Approve'
             }
         }
