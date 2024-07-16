@@ -1,0 +1,45 @@
+---
+- name: Download zookeeper tar.gz to the control node
+  get_url:
+    url: "{{ zookeeper_download_url }}"
+    dest: "/tmp/zookeeper_{{ zookeeper_version }}.tar.gz"
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy zookeeper tar.gz to the target nodes
+  copy:
+    src: "/tmp/zookeeper_{{ zookeeper_version }}.tar.gz"
+    dest: "/tmp/zookeeper_{{ zookeeper_version }}.tar.gz"
+
+- name: Create zookeeper installation directory
+  file:
+    path: "{{ zookeeper_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create zookeeper data directory
+  file:
+    path: "{{ zookeeper_data_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract zookeeper tar.gz
+  unarchive:
+    src: "/tmp/zookeeper_{{ zookeeper_version }}.tar.gz"
+    dest: "{{ zookeeper_install_dir }}"
+    remote_src: yes
+
+- name: Create symlink to zookeeper
+  file:
+    src: "{{ zookeeper_install_dir }}/apache-zookeeper-{{ zookeeper_version }}-bin"
+    dest: "{{ zookeeper_install_dir }}/zookeeper"
+    state: link
+
+- name: Configure zookeeper cfg
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ zookeeper_install_dir }}/zookeeper/conf/zoo.cfg"
+    mode: '0644'
+
+- name: Start zookeeper
+  command: "sh {{zookeeper_install_dir}}/zookeeper/bin/zkServer.sh start"

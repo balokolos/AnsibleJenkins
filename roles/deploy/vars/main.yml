@@ -1,0 +1,4 @@
+---
+# vars file for deploy
+kafka_user: kafka
+kafka_group: kafka

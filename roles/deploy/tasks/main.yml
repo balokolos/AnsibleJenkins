@@ -1,0 +1,103 @@
+---
+- name: Download zookeeper tar.gz to the control node
+  get_url:
+    url: "{{ zookeeper_download_url }}"
+    dest: "/tmp/kafka_{{ zookeeper_version }}.tgz"
+  delegate_to: localhost
+  run_once: true
+
+- name: Download Kafka tar.gz to the control node
+  get_url:
+    url: "{{ kafka_download_url }}"
+    dest: "/tmp/kafka_{{ kafka_version }}.tgz"
+  delegate_to: localhost
+  run_once: true
+
+
+- name: Copy zookeeper tar.gz to the target nodes
+  copy:
+    src: "/tmp/kafka_{{ zookeeper_version }}.tgz"
+    dest: "/tmp/kafka_{{ zookeeper_version }}.tgz"
+
+- name: Copy Kafka tar.gz to the target nodes
+  copy:
+    src: "/tmp/kafka_{{ kafka_version }}.tgz"
+    dest: "/tmp/kafka_{{ kafka_version }}.tgz"
+
+
+- name: Create zookeeper installation directory
+  file:
+    path: "{{ zookeeper_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create zookeeper data directory
+  file:
+    path: "{{ zookeeper_data_dir }}"
+    state: directory
+    mode: '0755'
+
+
+- name: Create Kafka installation directory
+  file:
+    path: "{{ kafka_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Kafka log directory
+  file:
+    path: "{{ kafka_log_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract zookeeper tar.gz
+  unarchive:
+    src: "/tmp/zookeeper_{{ kafka_version }}.tgz"
+    dest: "{{ zookeeper_install_dir }}"
+    remote_src: yes
+
+- name: Extract Kafka tar.gz
+  unarchive:
+    src: "/tmp/kafka_{{ kafka_version }}.tgz"
+    dest: "{{ kafka_install_dir }}"
+    remote_src: yes
+
+# - name: Create symlink to zookeeper
+#   file:
+#     src: "{{ zookeeper_install_dir }}/apache-zookeeper-{{ zookeeper_version }}-bin"
+#     dest: "{{ zookeeper_install_dir }}/zookeeper"
+#     state: link
+
+# - name: Create symlink to Kafka
+#   file:
+#     src: "{{ kafka_install_dir }}/kafka-{{ kafka_version }}-src"
+#     dest: "{{ kafka_install_dir }}/kafka"
+#     state: link
+
+- name: Configure zookeeper cfg
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ zookeeper_install_dir }}/conf/zoo.cfg"
+    mode: '0644'
+
+- name: Configure Kafka server properties
+  template:
+    src: server.properties.j2
+    dest: "{{ kafka_install_dir }}/kafka/config/server.properties"
+    mode: '0644'
+
+
+# - name: Setup Kafka service
+#   template:
+#     src: kafka.service.j2
+#     dest: /etc/systemd/system/kafka.service
+#     mode: '0644'
+#   become: yes
+#   notify: restart kafka
+
+- name: start zookeeper
+  ansible.builtin.script: "{{ zookeeper_install_dir }}/bin/zkServer.sh start"
+
+- name: start kafka
+  ansible.builtin.script: "{{ kafka_install_dir }}/bin/kafka-server-start.sh {{ kafka_install_dir }}/kafka/config/server.properties"
+

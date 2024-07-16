@@ -1,0 +1,31 @@
+---
+- name: Create shared directory
+  file:
+    path: "{{ dir_shared }}"
+    state: directory
+    mode: '0755'
+
+- name: Touch a file, using symbolic modes to set the permissions (equivalent to 0644)
+  ansible.builtin.file:
+    path: "{{ source_file }}/play.txt"
+    state: touch
+    mode: '0755'
+
+- name: Change file ownership, group and permissions
+  ansible.builtin.file:
+    path: "{{ source_file }}/play.txt"
+    owner: adminuser
+    group: adminuser
+    mode: '0755'
+
+- name: Copy file from tmp to play dir
+  copy:
+    src: "{{ source_file }}/play.txt"
+    dest: "{{ dir_shared }}"
+    remote_src: yes
+
+- name: Configure config file
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ dir_shared }}/zoo.cfg"
+    mode: '0755'

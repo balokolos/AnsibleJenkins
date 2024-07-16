@@ -1,0 +1,48 @@
+---
+- name: Download Kafka tar.gz to the control node
+  get_url:
+    url: "{{ kafka_download_url }}"
+    dest: "/tmp/kafka_{{ kafka_version }}.tar.gz"
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy Kafka tar.gz to the target nodes
+  copy:
+    src: "/tmp/kafka_{{ kafka_version }}.tar.gz"
+    dest: "/tmp/kafka_{{ kafka_version }}.tar.gz"
+
+- name: Create Kafka installation directory
+  file:
+    path: "{{ kafka_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Kafka log directory
+  file:
+    path: "{{ kafka_log_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract Kafka tar.gz
+  unarchive:
+    src: "/tmp/kafka_{{ kafka_version }}.tar.gz"
+    dest: "{{ kafka_install_dir }}"
+    remote_src: yes
+
+- name: Create symlink to Kafka
+  file:
+    src: "{{ kafka_install_dir }}/kafka_2.12-{{ kafka_version }}"
+    dest: "{{ kafka_install_dir }}/kafka"
+    state: link
+
+- name: Configure Kafka server properties
+  template:
+    src: server.properties.j2
+    dest: "{{ kafka_install_dir }}/kafka/config/server.properties"
+    mode: '0644'
+
+- name: Start Kafka
+  shell: "sh sudo {{ kafka_install_dir }}/kafka/bin/kafka-server-start.sh {{ kafka_install_dir }}/kafka/config/server.properties"
+  become: yes
+  args:
+    executable: /bin/bash

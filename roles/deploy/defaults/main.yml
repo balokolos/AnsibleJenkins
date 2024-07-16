@@ -1,0 +1,14 @@
+---
+# defaults file for deploy
+kafka_version: "3.7.1"
+kafka_download_url: "https://downloads.apache.org/kafka/{{ kafka_version }}/kafka-{{ kafka_version }}-src.tgz"
+kafka_install_dir: "/home/adminuser/kafka"
+kafka_log_dir: "{{ kafka_install_dir }}/logs"
+
+zookeeper_version: '3.8.4'
+zookeeper_download_url: https://dlcdn.apache.org/zookeeper/zookeeper-{{ zookeeper_version }}/apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz
+zookeeper_install_dir: "/home/adminuser/zookeeper"
+zookeeper_data_dir: "/home/adminuser/zookeeper/data"
+
+#https://downloads.apache.org/kafka/3.7.1/kafka-3.7.1-src.tgz
+#https://dlcdn.apache.org/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz

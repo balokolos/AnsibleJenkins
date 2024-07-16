@@ -1,0 +1,5 @@
+---
+- hosts: vm
+  #remote_user: adminuser
+  roles:
+    - play
