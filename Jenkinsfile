@@ -8,7 +8,7 @@ pipeline {
     }
     
     stages {
-        stage('Print Hostname') {
+        stage('Print Hostname TTTEST') {
             steps {
                 echo 'Running: echo $hostname'
                 sh 'echo $HOSTNAME'
