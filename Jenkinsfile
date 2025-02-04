@@ -18,7 +18,7 @@ pipeline {
         stage('Run Script') {
             steps {
                 echo "Running script with parameters: NAMA=${params.NAMA}, AYAH=${params.AYAH}, SHOW=${params.SHOW}"
-                sh "$HOME/script.sh '${params.NAMA}' '${params.AYAH}' '${params.SHOW}'"
+                //sh "$HOME/script.sh '${params.NAMA}' '${params.AYAH}' '${params.SHOW}'"
             }
         }
         
@@ -38,7 +38,7 @@ pipeline {
         stage('Show Script Content') {
             steps {
                 echo 'Running: cat ~/script.sh'
-                sh 'cat ~/script.sh'
+                //sh 'cat ~/script.sh'
             }
         }
     }
