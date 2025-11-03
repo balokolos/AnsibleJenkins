@@ -1,0 +1,9 @@
+---
+# defaults file for roles/fluentbit
+fluentbit_flush_interval: 5
+fluentbit_log_level: info
+fluentbit_input_path: /var/log/*.log
+fluentbit_tag: app.*
+fluentbit_output_name: forward
+fluentbit_output_host: 127.0.0.1
+fluentbit_output_port: 24224

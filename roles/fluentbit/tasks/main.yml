@@ -1,0 +1,30 @@
+---
+# Main installation and configuration tasks for Fluent Bit
+
+- name: Include pre-install tasks
+  include_tasks: pre.yml
+
+- name: Install Fluent Bit (Debian/Ubuntu)
+  apt:
+    name: td-agent-bit
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Fluent Bit (RHEL/AlmaLinux)
+  dnf:
+    name: fluent-bit
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Deploy Fluent Bit configuration
+  template:
+    src: fluent-bit.conf.j2
+    dest: /etc/fluent-bit/td-agent-bit.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Fluent Bit
+
+- name: Include post-install tasks
+  include_tasks: post.yml

@@ -1,0 +1,17 @@
+---
+- name: Deploy Fluent Bit
+  hosts: vm
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Ensure Python is installed for Ansible (Debian-based)
+      ansible.builtin.raw: test -e /usr/bin/python3 || (apt-get -y update && apt-get install -y python3)
+      register: output
+      changed_when: output.stdout | length > 0
+
+    - name: Gather facts after Python installed
+      ansible.builtin.setup:
+
+  roles:
+    - { role: fluentbit, tags: fluentbit }

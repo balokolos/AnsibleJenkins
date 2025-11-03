@@ -1,0 +1,32 @@
+---
+- name: Ensure system dependencies are present (Debian/Ubuntu)
+  apt:
+    name:
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Ensure system dependencies are present (RHEL/AlmaLinux)
+  dnf:
+    name:
+      - curl
+      - gnupg2
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Add Fluent Bit repository (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb https://packages.fluentbit.io/debian/{{ ansible_distribution_release }} {{ ansible_distribution_release }} main"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Fluent Bit repository file (RHEL/AlmaLinux)
+  template:
+    src: fluentbit.repo.j2
+    dest: /etc/yum.repos.d/fluentbit.repo
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "RedHat"

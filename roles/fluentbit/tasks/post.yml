@@ -1,0 +1,62 @@
+---
+# Post-install cleanup or validation tasks
+
+- name: Ensure Fluent Bit is running
+  service:
+    name: fluent-bit
+    state: started
+    enabled: true
+
+- name: Verify Fluent Bit service status
+  command: systemctl is-active fluent-bit
+  register: fb_status
+  changed_when: false
+
+- debug:
+    msg: "Fluent Bit service is currently: {{ fb_status.stdout }}"
+
+- name: Check fluent-bit binary (fluent-bit)
+  command: fluent-bit --version
+  register: fb_version_cmd
+  failed_when: false
+  changed_when: false
+
+- name: Check fluent-bit binary (td-agent-bit)
+  command: td-agent-bit --version
+  register: td_version_cmd
+  failed_when: false
+  changed_when: false
+  when: fb_version_cmd.rc != 0
+
+- name: Check fluent-bit binary (opt path)
+  command: /opt/fluent-bit/bin/fluent-bit --version
+  register: opt_fb_cmd
+  failed_when: false
+  changed_when: false
+  when: fb_version_cmd.rc != 0 and (td_version_cmd is not defined or td_version_cmd.rc != 0)
+
+- name: Set detected fluent-bit command
+  set_fact:
+    fluent_bit_cmd: >-
+      {% if fb_version_cmd.rc == 0 %}
+        fluent-bit
+      {% elif td_version_cmd is defined and td_version_cmd.rc == 0 %}
+        td-agent-bit
+      {% elif opt_fb_cmd is defined and opt_fb_cmd.rc == 0 %}
+        /opt/fluent-bit/bin/fluent-bit
+      {% else %}
+        ''
+      {% endif %}
+
+- name: Debug installed Fluent Bit version or missing binary
+  debug:
+    msg: >-
+      {% if fluent_bit_cmd == '' %}
+        Fluent Bit binary not found in PATH or /opt. Service appears to be running; check 'systemctl status fluent-bit' on the host to find the Exec path.
+      {% elif fluent_bit_cmd == 'fluent-bit' %}
+        Fluent Bit version: {{ fb_version_cmd.stdout }}
+      {% elif fluent_bit_cmd == 'td-agent-bit' %}
+        Fluent Bit (td-agent-bit) version: {{ td_version_cmd.stdout }}
+      {% else %}
+        Fluent Bit version: {{ opt_fb_cmd.stdout }}
+      {% endif %}    

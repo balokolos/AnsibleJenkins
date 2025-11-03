@@ -1,0 +1,4 @@
+---
+# vars file for roles/fluentbit
+fluentbit_service_name: td-agent-bit
+fluentbit_conf_path: /etc/td-agent-bit/fluent-bit.conf

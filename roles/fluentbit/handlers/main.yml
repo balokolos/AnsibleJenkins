@@ -1,0 +1,7 @@
+---
+# Handlers for Fluent Bit service
+
+- name: Restart Fluent Bit
+  service:
+    name: td-agent-bit
+    state: restarted
